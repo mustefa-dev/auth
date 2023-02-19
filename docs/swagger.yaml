@@ -1,0 +1,131 @@
+basePath: /
+definitions:
+  models.LoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  models.User:
+    properties:
+      password:
+        type: string
+      username:
+        description: gorm.Model
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: This is a sample JWT authentication API.
+  title: JWT Auth API
+  version: "1"
+paths:
+  /auth:
+    get:
+      consumes:
+      - application/json
+      description: Verify if the incoming request contains a valid JSON Web Token
+        (JWT) in the "Authorization" header, extract the user ID from it, and set
+        it in the context for subsequent requests to use.
+      parameters:
+      - description: JWT Token with 'Bearer ' prefix
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Authenticate user using JWT
+      tags:
+      - Authentication
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user with provided credentials and return JWT token
+      parameters:
+      - description: Login credentials
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: JWT token
+          schema:
+            $ref: '#/definitions/models.LoginRequest'
+        "400":
+          description: Invalid login credentials
+          schema:
+            type: string
+        "500":
+          description: Server error
+          schema:
+            type: string
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user with the provided username and password
+      parameters:
+      - description: Registration details
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully registered user
+          schema:
+            type: string
+        "400":
+          description: Invalid registration details
+          schema:
+            type: string
+        "500":
+          description: Server error
+          schema:
+            type: string
+  /users/{id}:
+    get:
+      description: Retrieve a user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: User not found
+          schema:
+            type: string
+swagger: "2.0"
