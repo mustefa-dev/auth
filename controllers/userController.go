@@ -1,14 +1,13 @@
 package controllers
 
 import (
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
 	. "jwt/models"
 	"net/http"
-	"os"
-	"time"
+
+	. "jwt/auth"
 )
 
 // Register handles user registration.
@@ -73,7 +72,7 @@ func Login(c *gin.Context) {
 	}
 
 	// Generate a JWT token
-	token, err := generateToken(user.ID)
+	token, err := GenerateToken(user.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error generating token"})
 		return
@@ -81,22 +80,4 @@ func Login(c *gin.Context) {
 
 	// Return the token
 	c.JSON(http.StatusOK, gin.H{"token": token})
-}
-
-func generateToken(userID uint) (string, error) {
-	// Create a new token object
-	token := jwt.New(jwt.SigningMethodHS256)
-
-	// Set token claims
-	claims := token.Claims.(jwt.MapClaims)
-	claims["userID"] = userID
-	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
-
-	// Generate encoded token and return it
-	secretKey := os.Getenv("JWT_SECRET_KEY")
-	tokenString, err := token.SignedString([]byte(secretKey))
-	if err != nil {
-		return "", err
-	}
-	return tokenString, nil
 }
